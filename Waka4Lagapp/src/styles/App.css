@@ -1,0 +1,136 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f0f0;
+  transition: background-color 0.5s, color 0.5s;
+}
+
+.header {
+  background-color: white;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.5s;
+}
+
+.header .logo {
+  font-size: 24px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.header .menu-icon, .header .dark-mode-icon {
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.sidebar {
+  height: 100%;
+  width: 0;
+  position: fixed;
+  z-index: 1;
+  top: 0;
+  right: 0;
+  background-color: #111;
+  overflow-x: hidden;
+  transition: 0.5s;
+  padding-top: 60px;
+}
+
+.sidebar a {
+  padding: 10px 15px;
+  text-decoration: none;
+  font-size: 25px;
+  color: white;
+  display: block;
+  transition: 0.3s;
+}
+
+.sidebar a:hover {
+  background-color: #575757;
+}
+
+.sidebar .closebtn {
+  position: absolute;
+  top: 0;
+  right: 25px;
+  font-size: 36px;
+  margin-left: 50px;
+}
+
+.main-content {
+  text-align: center;
+  padding: 100px 20px;
+  background-color: #e0e0e0;
+  transition: background-color 0.5s, color 0.5s;
+}
+
+.main-content h1 {
+  font-size: 36px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.main-content p {
+  font-size: 18px;
+  color: #666;
+  margin-bottom: 40px;
+}
+
+.main-content .btn {
+  padding: 10px 20px;
+  font-size: 16px;
+  color: white;
+  background-color: #007bff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.footer {
+  background-color: white;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.5s;
+}
+
+.footer img {
+  margin: 0 10px;
+}
+
+.image-section {
+  text-align: center;
+  padding: 20px;
+}
+
+.image-section img {
+  width: 80%;
+  border-radius: 20px;
+}
+
+.image-section p {
+  font-size: 14px;
+  color: #666;
+  margin-top: 10px;
+}
+
+.dark-mode {
+  background-color: #333;
+  color: #f0f0f0;
+}
+
+.dark-mode .header {
+  background-color: #444;
+}
+
+.dark-mode .main-content {
+  background-color: #555;
+  color: #f0f0f0;
+}
+
+.dark-mode .footer {
+  background-color: #444;
+}

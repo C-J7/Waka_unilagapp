@@ -1,0 +1,107 @@
+{const [currentLocation, setCurrentLocation] = useState('');
+  const [destination, setDestination] = useState('');
+
+  const handleCurrentLocationChange = (e) => {
+    setCurrentLocation(e.target.value);
+  };
+
+  const handleDestinationChange = (e) => {
+    setDestination(e.target.value);
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={currentLocation}
+        onChange={handleCurrentLocationChange}
+        placeholder="Enter your current location"
+      />
+      <input
+        type="text"
+        value={destination}
+        onChange={handleDestinationChange}
+        placeholder="Enter your destination"
+      />
+      <MapComponent />
+    </div>
+  );
+};
+
+
+
+
+
+
+
+
+//Css part for the MapComponent dijkstra
+// MapComponent.js
+const visualizePath = (path) => {
+  const polyline = L.polyline(path.map((node) => [node.x, node.y]), {
+    color: 'blue',
+    weight: 5,
+    opacity: 0.5,
+  }).addTo(map.current);
+
+  // Animate the path
+  polyline.animate({
+    duration: 5000,
+    delay: 1000,
+  });
+};
+
+
+
+
+
+
+
+
+// dijkstra call
+// App.js
+const App = () => {
+  const [currentLocation, setCurrentLocation] = useState('');
+  const [destination, setDestination] = useState('');
+  const [path, setPath] = useState([]);
+
+  const handleCurrentLocationChange = (e) => {
+    setCurrentLocation(e.target.value);
+  };
+
+  const handleDestinationChange = (e) => {
+    setDestination(e.target.value);
+  };
+
+  const handleSubmit = () => {
+    const startNode = graph.nodes.find((node) => node.id === currentLocation);
+    const endNode = graph.nodes.find((node) => node.id === destination);
+
+    if (startNode && endNode) {
+      const path = dijkstra(startNode.id, endNode.id);
+      setPath(path);
+      visualizePath(path);
+    } else {
+      alert('Invalid input');
+    }
+  };
+
+  return (
+    <div>
+      <input
+        type="text"
+        value={currentLocation}
+        onChange={handleCurrentLocationChange}
+        placeholder="Enter your current location"
+      />
+      <input
+        type="text"
+        value={destination}
+        onChange={handleDestinationChange}
+        placeholder="Enter your destination"
+      />
+      <button onClick={handleSubmit}>Get Directions</button>
+      <MapComponent path={path} />
+    </div>
+  );
+};

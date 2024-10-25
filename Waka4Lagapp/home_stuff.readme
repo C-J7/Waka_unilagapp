@@ -1,0 +1,922 @@
+### Plan
+1. **Create Landmarks Data File**: Define a new file to store landmarks data.
+2. **Create Card Component**: Define a new `CardComponent` to display landmark information.
+3. **Update HomePage**: Import landmarks data and use `CardComponent` to display information.
+4. **Add Line Animation**: Add a slow animation for the line to show progression.
+5. **Make Sidebar Collapsible**: Add functionality to collapse the sidebar and add a sidebar icon for easy use.
+6. **Add Suggested Features**: List suggested features and their intended directories.
+
+### Steps
+
+1. **Create `landmarks.ts`**:
+   export const landmarks = [
+     { label: 'Faculty of Science', value: 'science', position: [6.516, 3.396], info: 'Faculty of Science Information' },
+     { label: 'Faculty of Engineering', value: 'engineering', position: [6.517, 3.397], info: 'Faculty of Engineering Information' },
+     // Add more landmarks here
+   ];
+   ```
+
+2. **Create `CardComponent.tsx`**:
+   
+   import React from 'react';
+   import './CardComponent.css';
+
+   interface CardComponentProps {
+     title: string;
+     info: string;
+   }
+
+   const CardComponent: React.FC<CardComponentProps> = ({ title, info }) => {
+     return (
+       <div className="card">
+         <h2>{title}</h2>
+         <p>{info}</p>
+       </div>
+     );
+   };
+
+   export default CardComponent;
+   ```
+
+3. **Create `CardComponent.css`**:
+   ```css
+   .card {
+     background: #fff;
+     border-radius: 8px;
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     padding: 20px;
+     margin: 20px 0;
+     max-width: 300px;
+   }
+
+   .card h2 {
+     margin-top: 0;
+   }
+   ```
+
+4. **Update `HomePage.tsx`**:
+   ```tsx
+   import React, { useState } from 'react';
+   import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
+   import 'leaflet/dist/leaflet.css';
+   import Select from 'react-select';
+   import Tile from '../components/Tile';
+   import { dijkstra } from '../Waka-algo/dijkstra';
+   import { landmarks } from '../data/landmarks';
+   import CardComponent from '../components/CardComponent';
+   import '../styles/Home.css';
+
+   const HomePage: React.FC = () => {
+     const [currentLocation, setCurrentLocation] = useState(null);
+     const [destination, setDestination] = useState(null);
+     const [path, setPath] = useState([]);
+     const [selectedLandmark, setSelectedLandmark] = useState(null);
+
+     const handleCurrentLocationChange = (selectedOption) => {
+       setCurrentLocation(selectedOption);
+     };
+
+     const handleDestinationChange = (selectedOption) => {
+       setDestination(selectedOption);
+     };
+
+     const handleFindPath = () => {
+       const graph = {
+         science: { engineering: 1 },
+         engineering: { science: 1 },
+         // Add more connections here
+       };
+       const path = dijkstra(graph, currentLocation.value, destination.value);
+       setPath(path);
+     };
+
+     const handleMarkerClick = (landmark) => {
+       setSelectedLandmark(landmark);
+     };
+
+     return (
+       <div className="home">
+         <Tile>
+           <div className="location-inputs">
+             <Select
+               placeholder="Where are you?"
+               value={currentLocation}
+               onChange={handleCurrentLocationChange}
+               options={landmarks}
+             />
+             <Select
+               placeholder="Where to?"
+               value={destination}
+               onChange={handleDestinationChange}
+               options={landmarks}
+             />
+             <button className="find-path-button" onClick={handleFindPath}>Find Path</button>
+           </div>
+         </Tile>
+         <MapContainer center={[6.516, 3.396]} zoom={15} style={{ height: '80vh', width: '100%' }}>
+           <TileLayer
+             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+             attributionControl={true}
+           />
+           {landmarks.map(landmark => (
+             <Marker key={landmark.value} position={landmark.position} eventHandlers={{ click: () => handleMarkerClick(landmark) }}>
+               <Popup>{landmark.label}</Popup>
+             </Marker>
+           ))}
+           {path.length > 0 && (
+             <Polyline
+               positions={path.map(node => landmarks.find(landmark => landmark.value === node).position)}
+               color="blue"
+               pathOptions={{ animate: true, duration: 2 }}
+             />
+           )}
+         </MapContainer>
+         {selectedLandmark && (
+           <CardComponent title={selectedLandmark.label} info={selectedLandmark.info} />
+         )}
+       </div>
+     );
+   };
+
+   export default HomePage;
+   ```
+
+5. **Update 
+
+styles.css
+
+**:
+   ```css
+   /* styles.css */
+
+   /* General Styles */
+   body {
+     font-family: Arial, sans-serif;
+   }
+
+   .app {
+     display: flex;
+   }
+
+   .sidebar {
+     width: 200px;
+     background: #333;
+     color: #fff;
+     padding: 20px;
+     transition: width 0.3s;
+   }
+
+   .sidebar.collapsed {
+     width: 50px;
+   }
+
+   .sidebar ul {
+     list-style: none;
+     padding: 0;
+   }
+
+   .sidebar ul li {
+     margin: 10px 0;
+   }
+
+   .sidebar ul li a {
+     color: #fff;
+     text-decoration: none;
+   }
+
+   .main-content {
+     flex: 1;
+     padding: 20px;
+   }
+
+   .navbar {
+     background: #f4f4f4;
+     padding: 10px;
+     text-align: center;
+   }
+
+   .navbar h1 {
+     font-size: 1.5em; /* Adjusted font size */
+   }
+
+   /* Tile Component Styles */
+   .tile {
+     background: #fff;
+     border-radius: 8px;
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     padding: 20px;
+     margin: 20px 0;
+   }
+
+   /* Home Page Styles */
+   .home {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     padding: 20px;
+   }
+
+   .location-inputs {
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+   }
+
+   .location-inputs input {
+     padding: 10px;
+     border: 1px solid #ccc;
+     border-radius: 4px;
+   }
+
+   .find-path-button {
+     padding: 10px;
+     background-color: #007bff;
+     color: white;
+     border: none;
+     border-radius: 4px;
+     cursor: pointer;
+     transition: background-color 0.3s, transform 0.1s;
+   }
+
+   .find-path-button:hover {
+     background-color: #0056b3;
+   }
+
+   .find-path-button:active {
+     transform: translateY(2px);
+   }
+
+   /* Settings Page Styles */
+   .settings button {
+     display: block;
+     margin: 10px 0;
+     padding: 10px;
+   }
+
+   /* About Page Styles */
+   .about {
+     padding: 20px;
+   }
+
+   /* Card Component Styles */
+   .card {
+     background: #fff;
+     border-radius: 8px;
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     padding: 20px;
+     margin: 20px 0;
+     max-width: 300px;
+   }
+
+   .card h2 {
+     margin-top: 0;
+   }
+   ```
+
+6. **Update `Sidebar.tsx`**:
+   ```tsx
+   import React, { useState } from 'react';
+   import { Link } from 'react-router-dom';
+   import { FaHome, FaCog, FaInfoCircle, FaBars } from 'react-icons/fa';
+   import './Sidebar.css';
+
+   const Sidebar: React.FC = () => {
+     const [collapsed, setCollapsed] = useState(false);
+
+     const toggleSidebar = () => {
+       setCollapsed(!collapsed);
+     };
+
+     return (
+       <div className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
+         <FaBars className="sidebar-toggle" onClick={toggleSidebar} />
+         <ul>
+           <li>
+             <Link to="/"><FaHome /> Home</Link>
+           </li>
+           <li>
+             <Link to="/settings"><FaCog /> Settings</Link>
+           </li>
+           <li>
+             <Link to="/about"><FaInfoCircle /> About</Link>
+           </li>
+         </ul>
+       </div>
+     );
+   };
+
+   export default Sidebar;
+   ```
+
+7. **Update `Sidebar.css`**:
+   ```css
+   .sidebar {
+     width: 200px;
+     background: #333;
+     color: #fff;
+     padding: 20px;
+     transition: width 0.3s;
+   }
+
+   .sidebar.collapsed {
+     width: 50px;
+   }
+
+   .sidebar ul {
+     list-style: none;
+     padding: 0;
+   }
+
+   .sidebar ul li {
+     margin: 10px 0;
+   }
+
+   .sidebar ul li a {
+     color: #fff;
+     text-decoration: none;
+   }
+
+   .sidebar-toggle {
+     cursor: pointer;
+     margin-bottom: 20px;
+   }
+   ```
+
+### Suggested Features and Intended Directories
+
+1. **User Authentication**:
+   - **Directory**: `src/auth`
+   - **Description**: Implement user login, registration, and authentication.
+
+2. **User Profile**:
+   - **Directory**: `src/profile`
+   - **Description**: Allow users to view and edit their profile information.
+
+3. **Search History**:
+   - **Directory**: `src/history`
+   - **Description**: Save and display the user's search history.
+
+4. **Notifications**:
+   - **Directory**: `src/notifications`
+   - **Description**: Implement notifications for important updates and alerts.
+
+5. **Offline Mode**:
+   - **Directory**: `src/offline`
+   - **Description**: Allow the app to function offline with cached data.
+
+### Summary
+- Created a `landmarks.ts` file to store landmarks data.
+- Created a `CardComponent` to display landmark information.
+- Updated `HomePage.tsx` to use the `CardComponent` and display landmarks.
+- Added a slow animation for the line to show progression.
+- Made the sidebar collapsible and added a sidebar icon for easy use.
+- Listed suggested features and their intended directories.
+
+
+
+
+
+
+
+
+
+
+
+About page improvements: "D0NE"
+### Plan
+1. **Add Image to Assets Folder**: Ensure the image is placed in the `assets` folder.
+2. **Update About Page**: Display the image in a circular crop and make it clickable to show the full image.
+3. **Write Official About Info**: Provide a professional write-up for a university student and full-stack developer in training.
+
+###ToDo
+
+1. **Add Image to Assets Folder**:
+   - Place your image in the `assets` folder, e.g., `assets/profile.jpg`.
+
+2. **Update `About.tsx`**:
+   - Display the image in a circular crop.
+   - Make the image clickable to show the full, uncropped image.
+   - Add the official write-up.
+
+### Implementation
+
+1. **Update `About.tsx`**:
+   ```tsx
+   import React, { useState } from 'react';
+   import './About.css';
+   import profileImage from '../assets/profile.jpg'; // Ensure the image is in the assets folder
+
+   const About: React.FC = () => {
+     const [showFullImage, setShowFullImage] = useState(false);
+
+     const toggleImage = () => {
+       setShowFullImage(!showFullImage);
+     };
+
+     return (
+       <div className="about">
+         <h1>About Me</h1>
+         <div className="profile-image-container" onClick={toggleImage}>
+           <img
+             src={profileImage}
+             alt="Profile"
+             className={showFullImage ? 'full-image' : 'circular-image'}
+           />
+         </div>
+         <p>
+           Hello, my name is [Your Name]. I am a university student and a full-stack developer in training. I have a passion for learning new technologies and building innovative solutions. My goal is to become proficient in both front-end and back-end development, and to contribute to impactful projects that make a difference.
+         </p>
+         <p>
+           I am currently studying at the University of Lagos, where I am honing my skills in various programming languages and frameworks. I am dedicated to continuous learning and professional growth, and I am excited about the opportunities that lie ahead in the field of software development.
+         </p>
+       </div>
+     );
+   };
+
+   export default About;
+   ```
+
+2. **Create `About.css`**:
+   ```css
+   .about {
+     padding: 20px;
+   }
+
+   .profile-image-container {
+     display: flex;
+     justify-content: center;
+     margin-bottom: 20px;
+     cursor: pointer;
+   }
+
+   .circular-image {
+     width: 150px;
+     height: 150px;
+     border-radius: 50%;
+     object-fit: cover;
+   }
+
+   .full-image {
+     width: 300px;
+     height: auto;
+     border-radius: 0;
+   }
+
+   .about h1 {
+     text-align: center;
+   }
+
+   .about p {
+     text-align: justify;
+     margin: 10px 0;
+   }
+   ```
+
+### Summary
+- Added an image to the `assets` folder.
+- Updated the `About.tsx` page to display the image in a circular crop and make it clickable to show the full image.
+- Provided an official write-up for a university student and full-stack developer in training.
+
+
+
+improvements
+### Recommended Feature: Dark Mode Toggle
+Implementing a dark mode toggle can enhance the user experience by allowing users to switch between light and dark themes.
+
+### Steps
+
+1. **Implement Dark Mode Toggle**:
+   - Add a dark mode toggle button in the settings page.
+   - Use CSS variables to manage light and dark themes.
+   - Add micro animations for smooth transitions.
+
+2. **Enhance About Page UI**:
+   - Improve the layout and styling of the About page.
+   - Add micro animations for the image and text.
+
+3. **Format Settings Page**:
+   - Properly position buttons.
+   - Add micro animations for button interactions.
+
+### Implementation
+
+1. **Update `Settings.tsx`**:
+   ```tsx
+   import React, { useState } from 'react';
+   import './Settings.css';
+
+   const Settings: React.FC = () => {
+     const [darkMode, setDarkMode] = useState(false);
+
+     const handleToggleDarkMode = () => {
+       setDarkMode(!darkMode);
+       document.body.classList.toggle('dark-mode', !darkMode);
+     };
+
+     const handleToggleRTL = () => {
+       document.body.classList.toggle('rtl');
+     };
+
+     const handleAutoLocation = () => {
+       if (navigator.geolocation) {
+         navigator.geolocation.getCurrentPosition((position) => {
+           console.log(position.coords.latitude, position.coords.longitude);
+         });
+       }
+     };
+
+     return (
+       <div className="settings">
+         <h1>Settings</h1>
+         <button className="settings-button" onClick={handleToggleDarkMode}>Toggle Dark Mode</button>
+         <button className="settings-button" onClick={handleToggleRTL}>Toggle RTL</button>
+         <button className="settings-button" onClick={handleAutoLocation}>Get Current Location</button>
+       </div>
+     );
+   };
+
+   export default Settings;
+   ```
+
+2. **Update `Settings.css`**:
+   ```css
+   .settings {
+     padding: 20px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+   }
+
+   .settings h1 {
+     margin-bottom: 20px;
+   }
+
+   .settings-button {
+     padding: 10px 20px;
+     margin: 10px 0;
+     background-color: #007bff;
+     color: white;
+     border: none;
+     border-radius: 4px;
+     cursor: pointer;
+     transition: background-color 0.3s, transform 0.1s;
+   }
+
+   .settings-button:hover {
+     background-color: #0056b3;
+   }
+
+   .settings-button:active {
+     transform: translateY(2px);
+   }
+   ```
+
+3. **Update `About.tsx`**:
+   ```tsx
+   import React, { useState } from 'react';
+   import './About.css';
+   import profileImage from '../assets/profile.jpg';
+
+   const About: React.FC = () => {
+     const [showFullImage, setShowFullImage] = useState(false);
+
+     const toggleImage = () => {
+       setShowFullImage(!showFullImage);
+     };
+
+     return (
+       <div className="about">
+         <h1>About Me</h1>
+         <div className="profile-image-container" onClick={toggleImage}>
+           <img
+             src={profileImage}
+             alt="Profile"
+             className={showFullImage ? 'full-image' : 'circular-image'}
+           />
+         </div>
+         <div className="about-text">
+           <p>
+             Hello, my name is [Your Name]. I am a university student and a full-stack developer in training. I have a passion for learning new technologies and building innovative solutions. My goal is to become proficient in both front-end and back-end development, and to contribute to impactful projects that make a difference.
+           </p>
+           <p>
+             I am currently studying at the University of Lagos, where I am honing my skills in various programming languages and frameworks. I am dedicated to continuous learning and professional growth, and I am excited about the opportunities that lie ahead in the field of software development.
+           </p>
+         </div>
+       </div>
+     );
+   };
+
+   export default About;
+   ```
+
+4. **Update `About.css`**:
+   ```css
+   .about {
+     padding: 20px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     animation: fadeIn 1s ease-in-out;
+   }
+
+   .profile-image-container {
+     display: flex;
+     justify-content: center;
+     margin-bottom: 20px;
+     cursor: pointer;
+     transition: transform 0.3s;
+   }
+
+   .profile-image-container:hover {
+     transform: scale(1.05);
+   }
+
+   .circular-image {
+     width: 150px;
+     height: 150px;
+     border-radius: 50%;
+     object-fit: cover;
+     transition: border-radius 0.3s;
+   }
+
+   .full-image {
+     width: 300px;
+     height: auto;
+     border-radius: 0;
+   }
+
+   .about h1 {
+     text-align: center;
+     margin-bottom: 20px;
+   }
+
+   .about-text {
+     text-align: justify;
+     max-width: 600px;
+     animation: slideIn 1s ease-in-out;
+   }
+
+   .about-text p {
+     margin: 10px 0;
+   }
+
+   @keyframes fadeIn {
+     from {
+       opacity: 0;
+     }
+     to {
+       opacity: 1;
+     }
+   }
+
+   @keyframes slideIn {
+     from {
+       transform: translateY(20px);
+       opacity: 0;
+     }
+     to {
+       transform: translateY(0);
+       opacity: 1;
+     }
+   }
+   ```
+
+5. **Update `styles.css`**:
+   ```css
+   /* styles.css */
+
+   /* General Styles */
+   :root {
+     --background-color: #fff;
+     --text-color: #000;
+     --button-background-color: #007bff;
+     --button-hover-background-color: #0056b3;
+   }
+
+   body.dark-mode {
+     --background-color: #121212;
+     --text-color: #fff;
+     --button-background-color: #1e88e5;
+     --button-hover-background-color: #1565c0;
+   }
+
+   body {
+     background-color: var(--background-color);
+     color: var(--text-color);
+     font-family: Arial, sans-serif;
+     transition: background-color 0.3s, color 0.3s;
+   }
+
+   .app {
+     display: flex;
+   }
+
+   .sidebar {
+     width: 200px;
+     background: #333;
+     color: #fff;
+     padding: 20px;
+     transition: width 0.3s;
+   }
+
+   .sidebar.collapsed {
+     width: 50px;
+   }
+
+   .sidebar ul {
+     list-style: none;
+     padding: 0;
+   }
+
+   .sidebar ul li {
+     margin: 10px 0;
+   }
+
+   .sidebar ul li a {
+     color: #fff;
+     text-decoration: none;
+   }
+
+   .main-content {
+     flex: 1;
+     padding: 20px;
+   }
+
+   .navbar {
+     background: #f4f4f4;
+     padding: 10px;
+     text-align: center;
+   }
+
+   .navbar h1 {
+     font-size: 1.5em; /* Adjusted font size */
+   }
+
+   /* Tile Component Styles */
+   .tile {
+     background: #fff;
+     border-radius: 8px;
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     padding: 20px;
+     margin: 20px 0;
+   }
+
+   /* Home Page Styles */
+   .home {
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     padding: 20px;
+   }
+
+   .location-inputs {
+     display: flex;
+     flex-direction: column;
+     gap: 10px;
+   }
+
+   .location-inputs input {
+     padding: 10px;
+     border: 1px solid #ccc;
+     border-radius: 4px;
+   }
+
+   .find-path-button {
+     padding: 10px;
+     background-color: var(--button-background-color);
+     color: white;
+     border: none;
+     border-radius: 4px;
+     cursor: pointer;
+     transition: background-color 0.3s, transform 0.1s;
+   }
+
+   .find-path-button:hover {
+     background-color: var(--button-hover-background-color);
+   }
+
+   .find-path-button:active {
+     transform: translateY(2px);
+   }
+
+   /* Settings Page Styles */
+   .settings {
+     padding: 20px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+   }
+
+   .settings h1 {
+     margin-bottom: 20px;
+   }
+
+   .settings-button {
+     padding: 10px 20px;
+     margin: 10px 0;
+     background-color: var(--button-background-color);
+     color: white;
+     border: none;
+     border-radius: 4px;
+     cursor: pointer;
+     transition: background-color 0.3s, transform 0.1s;
+   }
+
+   .settings-button:hover {
+     background-color: var(--button-hover-background-color);
+   }
+
+   .settings-button:active {
+     transform: translateY(2px);
+   }
+
+   /* About Page Styles */
+   .about {
+     padding: 20px;
+     display: flex;
+     flex-direction: column;
+     align-items: center;
+     animation: fadeIn 1s ease-in-out;
+   }
+
+   .profile-image-container {
+     display: flex;
+     justify-content: center;
+     margin-bottom: 20px;
+     cursor: pointer;
+     transition: transform 0.3s;
+   }
+
+   .profile-image-container:hover {
+     transform: scale(1.05);
+   }
+
+   .circular-image {
+     width: 150px;
+     height: 150px;
+     border-radius: 50%;
+     object-fit: cover;
+     transition: border-radius 0.3s;
+   }
+
+   .full-image {
+     width: 300px;
+     height: auto;
+     border-radius: 0;
+   }
+
+   .about h1 {
+     text-align: center;
+     margin-bottom: 20px;
+   }
+
+   .about-text {
+     text-align: justify;
+     max-width: 600px;
+     animation: slideIn 1s ease-in-out;
+   }
+
+   .about-text p {
+     margin: 10px 0;
+   }
+
+   @keyframes fadeIn {
+     from {
+       opacity: 0;
+     }
+     to {
+       opacity: 1;
+     }
+   }
+
+   @keyframes slideIn {
+     from {
+       transform: translateY(20px);
+       opacity: 0;
+     }
+     to {
+       transform: translateY(0);
+       opacity: 1;
+     }
+   }
+
+   /* Card Component Styles */
+   .card {
+     background: #fff;
+     border-radius: 8px;
+     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+     padding: 20px;
+     margin: 20px 0;
+     max-width: 300px;
+   }
+
+   .card h2 {
+     margin-top: 0;
+   }
+   ```
+
+### Summary
+- Implemented a dark mode toggle in the settings page.
+- Enhanced the About page UI with improved layout and styling, including micro animations.
+- Formatted the settings page with proper button positioning and micro animations.
+- Added a recommended feature (dark mode toggle) and implemented it.
