@@ -102,7 +102,7 @@ const HomePage: React.FC = () => {
               const landmark = landmarks.find(landmark => landmark.value === node);
               return landmark ? landmark.position : [0, 0];
             })}
-            pathOptions={{ color: 'blue', animate: true, duration: 2 }}
+            pathOptions={{ color: 'blue'}}
           />
         )}
         <MapEvents />
