@@ -1,4 +1,3 @@
-// filepath: /c:/Users/Admin/Documents/React Projects/Waka_unilagapp/Waka4Lagapp/src/pages/homePage.tsx
 import React, { useState } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
