@@ -2,17 +2,17 @@
   "version": 2,
   "builds": [
     {
-      "src": "Waka4Lagapp/package.json",
+      "src": "package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "Waka4Lagapp/dist"
+        "distDir": "dist"
       }
     }
   ],
   "routes": [
     {
       "src": "/(.*)",
-      "dest": "Waka4Lagapp/dist/index.html"
+      "dest": "/index.html"
     }
   ]
 }
