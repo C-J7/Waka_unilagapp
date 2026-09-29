@@ -1,50 +1,35 @@
-# React + TypeScript + Vite
+# Waka4Lag
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Campus navigation app for the University of Lagos, built to help guests and first-time visitors find their way around.
 
-Currently, two official plugins are available:
+**Live demo:** https://waka-unilagapp.vercel.app
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## What it does
 
-## Expanding the ESLint configuration
+Waka4Lag ("waka" — Nigerian pidgin for "walk"/"go") plots a route between locations on UNILAG's campus on an interactive map, using a custom implementation of Dijkstra's algorithm to compute the shortest path across the campus's road/path network.
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+## Stack
 
-- Configure the top-level `parserOptions` property like this:
+- React + TypeScript, bundled with Vite
+- [Leaflet](https://leafletjs.com/) / react-leaflet for the interactive map
+- A hand-rolled [Dijkstra's algorithm](./src/Waka-algo/dijkstra.ts) over campus location data
+- React Router for navigation between the map, settings, and about pages
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Getting started
+
+```bash
+npm install
+npm run dev
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Project structure
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```
+src/
+├── App.tsx            # Routes: home (map), settings, about
+├── Data/               # Campus location/graph data
+├── Waka-algo/
+│   └── dijkstra.ts     # Shortest-path implementation
+├── components/         # Navbar, sidebar, map components
+└── pages/               # HomePage, Settings, About
 ```
